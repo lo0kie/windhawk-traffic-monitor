@@ -156,7 +156,7 @@ class DWriteText {
             m_format = nullptr;
         }
         // 中文界面字体通常把细体注册成独立字族（如 "Microsoft YaHei UI Light"），
-        // 这种字族里没有 300 这个字重，直接给 300 会退回常规，所以先换成 Light 字族
+        // 这种字族里没有 100-300 这些字重，直接给会退回常规，所以先换成 Light 字族
         std::wstring family = face;
         if (weight <= 300) {
             std::wstring lightFamily = face + L" Light";

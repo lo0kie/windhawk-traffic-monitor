@@ -58,15 +58,11 @@ static bool ResolvePlaceholder(const std::wstring& name, const Snapshot& data, c
     } else if (NameEquals(name, L"cpu_usage")) {
         *out = UsageToString(data.cpu, s);
     } else if (NameEquals(name, L"memory_usage")) {
-        if (s.memDisplay == 1) {
-            *out = DataSizeWithUnit(data.memUsedKB * 1024, s);
-        } else if (s.memDisplay == 2) {
-            *out = DataSizeWithUnit((data.memTotalKB - data.memUsedKB) * 1024, s);
-        } else {
-            *out = UsageToString(data.memPercent, s);
-        }
+        *out = UsageToString(data.memPercent, s);
     } else if (NameEquals(name, L"memory_used")) {
         *out = DataSizeWithUnit(data.memUsedKB * 1024, s);
+    } else if (NameEquals(name, L"memory_available")) {
+        *out = DataSizeWithUnit((data.memTotalKB - data.memUsedKB) * 1024, s);
     } else if (NameEquals(name, L"memory_total")) {
         *out = DataSizeWithUnit(data.memTotalKB * 1024, s);
     } else if (NameEquals(name, L"gpu_usage")) {

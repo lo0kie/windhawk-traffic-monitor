@@ -29,7 +29,6 @@ struct Settings {
     bool useBits = false;      // 由 speedUnit 派生：>= 3 为 true
     bool hideUnit = false;   // 隐藏所有数值的单位（KB/s、GB、% 都算单位）
     bool separateUnit = true;
-    int memDisplay = 0;  // 0 percent, 1 used, 2 available
     int position = 0;  // 0 auto, 1 right, 2 left, 3 far-left
     int offsetX = 0;
     int offsetY = 0;
@@ -109,7 +108,6 @@ static void ApplyPreviewIni(Settings* s, const wchar_t* path) {
     s->useBits = s->speedUnit >= 3;
     s->hideUnit = _wtoi(IniStr(L"hideunit", L"0", path).c_str()) != 0;
     s->separateUnit = _wtoi(IniStr(L"separateunit", L"1", path).c_str()) != 0;
-    s->memDisplay = _wtoi(IniStr(L"memdisplay", L"0", path).c_str());
     s->position = _wtoi(IniStr(L"position", L"0", path).c_str());
     s->offsetX = _wtoi(IniStr(L"offsetx", L"0", path).c_str());
     s->offsetY = _wtoi(IniStr(L"offsety", L"0", path).c_str());
@@ -134,10 +132,11 @@ static void LoadSettings() {
 
     s.fontFace = GetStringSetting(L"FontFace", L"Microsoft YaHei UI");
     s.fontSize = std::max(6, std::min(48, (int)GetIntSetting(L"FontSize", 14)));
-    static const wchar_t* const weights[] = {L"light",  L"normal", L"medium",
-                                             L"semibold", L"bold", L"black"};
-    static const int weightValues[] = {300, 400, 500, 600, 700, 900};
-    s.fontWeight = weightValues[GetEnumSetting(L"FontWeight", weights, 6, 1)];
+    static const wchar_t* const weights[] = {L"thin",   L"extralight", L"light",
+                                             L"normal", L"medium",     L"semibold",
+                                             L"bold",   L"extrabold",  L"black"};
+    static const int weightValues[] = {100, 200, 300, 400, 500, 600, 700, 800, 900};
+    s.fontWeight = weightValues[GetEnumSetting(L"FontWeight", weights, 9, 3)];
 
     static const wchar_t* const themes[] = {L"auto", L"dark", L"light"};
     s.theme = GetEnumSetting(L"Theme", themes, 3, 0);
@@ -152,9 +151,6 @@ static void LoadSettings() {
     s.useBits = s.speedUnit >= 3;
     s.hideUnit = GetIntSetting(L"HideUnit", 0) != 0;
     s.separateUnit = GetIntSetting(L"SeparateUnit", 1) != 0;
-
-    static const wchar_t* const memModes[] = {L"percent", L"used", L"available"};
-    s.memDisplay = GetEnumSetting(L"MemoryDisplay", memModes, 3, 0);
 
     static const wchar_t* const positions[] = {L"auto", L"right", L"left", L"far-left"};
     s.position = GetEnumSetting(L"Position", positions, 4, 0);

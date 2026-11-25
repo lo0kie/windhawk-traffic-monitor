@@ -4,9 +4,9 @@
 // @name:zh-CN      任务栏网速监控
 // @description     TrafficMonitor's taskbar window as a Windhawk mod: shows network speed / CPU / memory on the taskbar via a format string, single or double row
 // @description:zh-CN TrafficMonitor 的任务栏窗口：用格式串在任务栏上显示网速 / CPU / 内存等，支持单排和双排
-// @version         1.0.1
+// @version         1.0.2
 // @author          lo0kie
-// @github          lo0kie
+// @github          https://github.com/lo0kie/windhawk-traffic-monitor
 // @license         GPL-3.0
 // @include         windhawk.exe
 // @compilerOptions -lgdi32 -ldwrite -lpdh -liphlpapi -lcomctl32 -lshell32 -ladvapi32 -lole32
@@ -24,6 +24,9 @@ This is a **tool mod**: it does not inject into `explorer.exe` or hook any funct
 It runs in Windhawk's dedicated process and floats its own layered window above the
 taskbar to show the data.
 
+Source code, issues and releases:
+<https://github.com/lo0kie/windhawk-traffic-monitor>
+
 ## Features
 
 - Upload / download / total network speed (the most active adapter), CPU, memory, GPU, disk activity
@@ -31,7 +34,7 @@ taskbar to show the data.
 - Font, size, weight, text color, background color / opacity, alignment; changes apply instantly
 - Text drawn with DirectWrite grayscale antialiasing (8-bit coverage), crisp at small sizes
 - Follows the system dark / light theme
-- Hover for detailed info, double-click to open Task Manager
+- Hover for detailed info; single, middle and right click can each be bound to an action
 - Follows the taskbar: hides when the taskbar auto-hides or goes fullscreen
 
 ## Format string
@@ -44,8 +47,9 @@ Insert values with `${name}`, everything else is printed verbatim:
 | `${network_down}` | Download speed |
 | `${network_total}` | Total speed (up + down) |
 | `${cpu_usage}` | CPU usage |
-| `${memory_usage}` | Memory (per the "Memory display" setting) |
+| `${memory_usage}` | Memory usage (percentage) |
 | `${memory_used}` | Used memory |
+| `${memory_available}` | Available memory |
 | `${memory_total}` | Total memory |
 | `${gpu_usage}` | GPU usage |
 | `${disk_usage}` | Disk activity |
@@ -80,27 +84,13 @@ collection logic are ported from TrafficMonitor © zhongyang219 (GPL-3.0).
 - SingleRow: "↑: ${network_up}    ↓: ${network_down}"
   $name: Single-row format
   $name:zh-CN: 单排格式
-  $description: >-
-    The full line shown in single-row mode. Insert values with ${name}, other characters
-    are printed verbatim. Available: ${network_up} upload, ${network_down} download,
-    ${network_total} total speed, ${cpu_usage} CPU, ${memory_usage} memory,
-    ${memory_used} used memory, ${memory_total} total memory, ${gpu_usage} GPU,
-    ${disk_usage} disk activity. Example: "↑: ${network_up}   ↓: ${network_down}"
-  $description:zh-CN: >-
-    单排时显示的整行文本。用 ${名字} 插入数值，其它字符原样显示。
-    可用：${network_up} 上传速度、${network_down} 下载速度、${network_total} 总网速、
-    ${cpu_usage} CPU 使用率、${memory_usage} 内存、${memory_used} 已用内存、
-    ${memory_total} 总内存、${gpu_usage} GPU、${disk_usage} 磁盘活动。
-    例："↑: ${network_up}   ↓: ${network_down}"
+  $description: Line shown in single-row mode; ${name} is replaced by a value, other characters are output verbatim. Placeholders - ${network_up} upload, ${network_down} download, ${network_total} total, ${cpu_usage} CPU, ${memory_usage} memory, ${memory_used} used, ${memory_available} available, ${memory_total} total memory, ${gpu_usage} GPU, ${disk_usage} disk.
+  $description:zh-CN: 单排模式显示的整行文本；${名称} 替换为对应数值，其余字符原样输出。占位符：${network_up} 上传、${network_down} 下载、${network_total} 总速率、${cpu_usage} CPU、${memory_usage} 内存、${memory_used} 已用、${memory_available} 可用、${memory_total} 总量、${gpu_usage} GPU、${disk_usage} 磁盘。
 - Arrange: horizontal
   $name: Arrangement
   $name:zh-CN: 排列方式
-  $description: >-
-    Single row: only the "Single-row format" line. Two rows: top / bottom each show one
-    line, narrower width, use this when the taskbar is crowded.
-  $description:zh-CN: >-
-    单排：只显示“单排格式”这一行。双排：上排 / 下排各显示一行，宽度更窄，
-    任务栏比较挤的时候用这个。
+  $description: Single row shows one line; two rows split into top and bottom, taking less width.
+  $description:zh-CN: 单排仅显示一行；双排分为上下两行，占用宽度更小。
   $options:
   - horizontal: Single row
   - vertical: Two rows
@@ -110,46 +100,48 @@ collection logic are ported from TrafficMonitor © zhongyang219 (GPL-3.0).
 - TopRow: "↑: ${network_up}"
   $name: Top-row format (two rows)
   $name:zh-CN: 上排格式（双排）
-  $description: The top line in two-row mode, same syntax as the single-row format.
-  $description:zh-CN: 双排时上面一行，语法同“单排格式”。
+  $description: Upper line in two-row mode; same syntax as the single-row format.
+  $description:zh-CN: 双排时的上方一行，语法同“单排格式”。
 - BottomRow: "↓: ${network_down}"
   $name: Bottom-row format (two rows)
   $name:zh-CN: 下排格式（双排）
-  $description: The bottom line in two-row mode, same syntax as the single-row format.
-  $description:zh-CN: 双排时下面一行，语法同“单排格式”。
+  $description: Lower line in two-row mode; same syntax as the single-row format.
+  $description:zh-CN: 双排时的下方一行，语法同“单排格式”。
 - FontSize: 14
   $name: Font size (pixels)
   $name:zh-CN: 字号（像素）
   $description: Text height in pixels.
-  $description:zh-CN: 文字高度，单位是像素。
+  $description:zh-CN: 文字高度，单位为像素。
 - FontFace: Microsoft YaHei UI
   $name: Font
   $name:zh-CN: 字体
-  $description: Font family name used for the taskbar text.
-  $description:zh-CN: 任务栏文字使用的字体名称。
+  $description: Font family used for the taskbar text.
+  $description:zh-CN: 任务栏文字所用字体。
 - FontWeight: normal
   $name: Font weight
   $name:zh-CN: 字重
-  $description: >-
-    Only visible if the font ships the matching face (Microsoft YaHei UI only has light /
-    regular / bold); missing weights fall back to the closest available one.
-  $description:zh-CN: >-
-    字体本身有对应字面才看得出区别（Microsoft YaHei UI 只有细体 / 常规 / 粗体），
-    没有的字重会由系统挑最接近的一个。
+  $description: Effective only if the font provides that face; otherwise the closest face is used.
+  $description:zh-CN: 仅当字体提供对应字面时生效，否则使用最接近的字面。
   $options:
+  - thin: Thin (100)
+  - extralight: Extra Light (200)
   - light: Light (300)
   - normal: Regular (400)
   - medium: Medium (500)
   - semibold: Semibold (600)
   - bold: Bold (700)
+  - extrabold: Extra Bold (800)
   - black: Black (900)
   $options:zh-CN:
+  - thin: 极细（100）
+  - extralight: 超细（200）
   - light: 细体（300）
   - normal: 常规（400）
   - medium: 中等（500）
   - semibold: 半粗（600）
   - bold: 粗体（700）
-  - black: 特粗（900）
+  - extrabold: 特粗（800）
+  - black: 超粗（900）
 - SpeedUnit: auto
   $name: Speed unit
   $name:zh-CN: 网速单位
@@ -170,24 +162,13 @@ collection logic are ported from TrafficMonitor © zhongyang219 (GPL-3.0).
 - HideUnit: false
   $name: Hide units
   $name:zh-CN: 隐藏单位
-  $description: "All values show numbers only: KB/s, GB, % are all hidden."
-  $description:zh-CN: 所有数值都只留数字：KB/s、GB、% 全部不显示。
-- MemoryDisplay: percent
-  $name: Memory display
-  $name:zh-CN: 内存显示方式
-  $options:
-  - percent: Used percentage
-  - used: Used capacity
-  - available: Available capacity
-  $options:zh-CN:
-  - percent: 已用百分比
-  - used: 已用容量
-  - available: 可用容量
+  $description: Hide units such as KB/s, GB and %.
+  $description:zh-CN: 不显示 KB/s、GB、% 等单位。
 - Theme: auto
   $name: Theme
   $name:zh-CN: 主题
-  $description: Auto follows the system dark / light mode for the default text color.
-  $description:zh-CN: 自动时跟随系统深色 / 浅色模式决定默认文字颜色。
+  $description: Auto follows the system dark / light mode.
+  $description:zh-CN: 自动：跟随系统深色 / 浅色模式。
   $options:
   - auto: Follow system
   - dark: Dark
@@ -199,23 +180,23 @@ collection logic are ported from TrafficMonitor © zhongyang219 (GPL-3.0).
 - TextColor: ""
   $name: Text color
   $name:zh-CN: 文字颜色
-  $description: Like "#FFFFFF"; empty uses the theme default (white on dark, black on light).
-  $description:zh-CN: 形如 "#FFFFFF"，留空则按主题自动（深色白色、浅色黑色）。
+  $description: Format "#RRGGBB"; empty follows the theme.
+  $description:zh-CN: 格式为“#RRGGBB”，留空时跟随主题。
 - BackColor: ""
   $name: Background color
   $name:zh-CN: 背景颜色
-  $description: Like "#000000"; empty draws no background (fully transparent, text over the taskbar).
-  $description:zh-CN: 形如 "#000000"，留空则不画背景（完全透明，文字直接压在任务栏上）。
+  $description: Format "#RRGGBB"; empty draws no background.
+  $description:zh-CN: 格式为“#RRGGBB”，留空时不绘制背景。
 - BackOpacity: 200
   $name: Background opacity
   $name:zh-CN: 背景不透明度
-  $description: 0-255, only applies when a background color is set.
-  $description:zh-CN: 0-255，仅在设置了背景颜色时生效。
+  $description: Range 0-255; requires a background color.
+  $description:zh-CN: 范围 0-255，需先设置背景颜色。
 - Align: left
   $name: Alignment
   $name:zh-CN: 行对齐
-  $description: How text aligns within the window when the two rows differ in width.
-  $description:zh-CN: 两行宽度不一样时，文字在窗口内的对齐方式。
+  $description: Alignment when the two rows differ in width.
+  $description:zh-CN: 两行宽度不同时的对齐方式。
   $options:
   - left: Left
   - center: Center
@@ -226,12 +207,12 @@ collection logic are ported from TrafficMonitor © zhongyang219 (GPL-3.0).
   - right: 右对齐
 - SeparateUnit: true
   $name: Space between value and unit
-  $name:zh-CN: 数值和单位之间加空格
+  $name:zh-CN: 数值与单位间空格
 - Position: auto
   $name: Position
   $name:zh-CN: 位置
-  $description: "Auto: prefers the left of the notification area, moves to the left of the Start button when space is tight."
-  $description:zh-CN: 自动：优先贴在通知区域左边，空间不够时移到开始按钮左边，避免盖住任务按钮。
+  $description: "Auto: prefers the left of the notification area; falls back to the left of the Start button."
+  $description:zh-CN: 自动：优先置于通知区域左侧，空间不足时移至开始按钮左侧。
   $options:
   - auto: Auto
   - right: Right of taskbar (left of notification area)
@@ -239,37 +220,37 @@ collection logic are ported from TrafficMonitor © zhongyang219 (GPL-3.0).
   - far-left: Far left of taskbar
   $options:zh-CN:
   - auto: 自动
-  - right: 任务栏右侧（通知区域左边）
-  - left: 任务栏左侧（开始按钮左边）
-  - far-left: 状态栏最左侧
+  - right: 任务栏右侧（通知区域左侧）
+  - left: 任务栏左侧（开始按钮左侧）
+  - far-left: 任务栏最左侧
 - OffsetX: 0
   $name: Horizontal offset
   $name:zh-CN: 水平偏移
-  $description: Pixels, positive moves right.
-  $description:zh-CN: 像素，正数向右。
+  $description: Pixels; positive moves right.
+  $description:zh-CN: 单位为像素，正值右移。
 - OffsetY: 0
   $name: Vertical offset
   $name:zh-CN: 垂直偏移
-  $description: Pixels, positive moves down.
-  $description:zh-CN: 像素，正数向下。
+  $description: Pixels; positive moves down.
+  $description:zh-CN: 单位为像素，正值下移。
 - RowGap: 0
-  $name: Gap between the two rows
-  $name:zh-CN: 双排上下留白
-  $description: Gap between the two rows (pixels); positive spreads them, negative pulls them closer (can be negative).
-  $description:zh-CN: 双排时上下两行之间的留白（像素），正数拉开、负数拉近，可为负。
+  $name: Row gap (two rows)
+  $name:zh-CN: 双排行间距
+  $description: Gap between the two rows in pixels; may be negative.
+  $description:zh-CN: 双排时上下两行的间距（像素），可为负值。
 - UpdateInterval: 1000
   $name: Refresh interval (ms)
   $name:zh-CN: 刷新间隔（毫秒）
   $description: Minimum 200.
-  $description:zh-CN: 最小 200。
+  $description:zh-CN: 最小值为 200。
 - ShowTooltip: true
   $name: Show tooltip on hover
-  $name:zh-CN: 显示鼠标提示
+  $name:zh-CN: 悬停时显示提示
 - SingleClick: none
   $name: Single-click action
   $name:zh-CN: 单击动作
-  $description: Hovering shows a highlight when a mouse button action is set.
-  $description:zh-CN: 设置鼠标按键动作后，鼠标悬停会显示高亮反馈。
+  $description: A highlight appears on hover when an action is set.
+  $description:zh-CN: 设置动作后，悬停时显示高亮。
   $options:
   - none: None
   - taskmgr: Open Task Manager
@@ -292,8 +273,8 @@ collection logic are ported from TrafficMonitor © zhongyang219 (GPL-3.0).
 - RightClick: none
   $name: Right-click action
   $name:zh-CN: 右键动作
-  $description: Right-click no longer opens the taskbar's own menu.
-  $description:zh-CN: 右键不再弹出任务栏自身的菜单。
+  $description: Right-click is handled by this mod; the taskbar menu does not appear.
+  $description:zh-CN: 右键由本 mod 接管，任务栏菜单不再弹出。
   $options:
   - none: None
   - taskmgr: Open Task Manager
