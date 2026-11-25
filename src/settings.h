@@ -14,9 +14,9 @@ enum MouseAction {
 
 struct Settings {
     int arrange = 0;  // 0 单排, 1 双排
-    std::wstring singleRow = L"↑: ${up}    ↓: ${down}";
-    std::wstring topRow = L"↑: ${up}";
-    std::wstring bottomRow = L"↓: ${down}";
+    std::wstring singleRow = L"↑: ${network_up}    ↓: ${network_down}";
+    std::wstring topRow = L"↑: ${network_up}";
+    std::wstring bottomRow = L"↓: ${network_down}";
     int align = 0;  // 0 left, 1 center, 2 right
     std::wstring fontFace = L"Microsoft YaHei UI";
     int fontSize = 14;  // 像素（em 高度），不再随 DPI 缩放

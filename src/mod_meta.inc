@@ -4,7 +4,7 @@
 // @name:zh-CN      任务栏网速监控
 // @description     TrafficMonitor's taskbar window as a Windhawk mod: shows network speed / CPU / memory on the taskbar via a format string, single or double row
 // @description:zh-CN TrafficMonitor 的任务栏窗口：用格式串在任务栏上显示网速 / CPU / 内存等，支持单排和双排
-// @version         1.0.0
+// @version         1.0.1
 // @author          lo0kie
 // @github          lo0kie
 // @license         GPL-3.0
@@ -40,18 +40,18 @@ Insert values with `${name}`, everything else is printed verbatim:
 
 | Placeholder | Meaning |
 | --- | --- |
-| `${up}` | Upload speed |
-| `${down}` | Download speed |
-| `${total}` | Total speed (up + down) |
-| `${cpu}` | CPU usage |
-| `${mem}` | Memory (per the "Memory display" setting) |
-| `${memused}` | Used memory |
-| `${memtotal}` | Total memory |
-| `${gpu}` | GPU usage |
-| `${disk}` | Disk activity |
+| `${network_up}` | Upload speed |
+| `${network_down}` | Download speed |
+| `${network_total}` | Total speed (up + down) |
+| `${cpu_usage}` | CPU usage |
+| `${memory_usage}` | Memory (per the "Memory display" setting) |
+| `${memory_used}` | Used memory |
+| `${memory_total}` | Total memory |
+| `${gpu_usage}` | GPU usage |
+| `${disk_usage}` | Disk activity |
 
-Example: `↑: ${up}    ↓: ${down}    CPU: ${cpu}`.
-The window width reserves space for the largest possible value, so it does not jitter.
+Example: `↑: ${network_up}    ↓: ${network_down}    CPU: ${cpu_usage}`.
+The window width follows the actual text width.
 
 ## Notes
 
@@ -77,19 +77,21 @@ collection logic are ported from TrafficMonitor © zhongyang219 (GPL-3.0).
 
 // ==WindhawkModSettings==
 /*
-- SingleRow: "↑: ${up}    ↓: ${down}"
+- SingleRow: "↑: ${network_up}    ↓: ${network_down}"
   $name: Single-row format
   $name:zh-CN: 单排格式
   $description: >-
     The full line shown in single-row mode. Insert values with ${name}, other characters
-    are printed verbatim. Available: ${up} upload, ${down} download, ${total} total speed,
-    ${cpu} CPU, ${mem} memory, ${memused} used memory, ${memtotal} total memory, ${gpu} GPU,
-    ${disk} disk activity. Example: "↑: ${up}   ↓: ${down}   CPU: ${cpu}"
+    are printed verbatim. Available: ${network_up} upload, ${network_down} download,
+    ${network_total} total speed, ${cpu_usage} CPU, ${memory_usage} memory,
+    ${memory_used} used memory, ${memory_total} total memory, ${gpu_usage} GPU,
+    ${disk_usage} disk activity. Example: "↑: ${network_up}   ↓: ${network_down}"
   $description:zh-CN: >-
     单排时显示的整行文本。用 ${名字} 插入数值，其它字符原样显示。
-    可用：${up} 上传速度、${down} 下载速度、${total} 总网速、${cpu} CPU 使用率、
-    ${mem} 内存、${memused} 已用内存、${memtotal} 总内存、${gpu} GPU、${disk} 磁盘活动。
-    例："↑: ${up}   ↓: ${down}   CPU: ${cpu}"
+    可用：${network_up} 上传速度、${network_down} 下载速度、${network_total} 总网速、
+    ${cpu_usage} CPU 使用率、${memory_usage} 内存、${memory_used} 已用内存、
+    ${memory_total} 总内存、${gpu_usage} GPU、${disk_usage} 磁盘活动。
+    例："↑: ${network_up}   ↓: ${network_down}"
 - Arrange: horizontal
   $name: Arrangement
   $name:zh-CN: 排列方式
@@ -105,12 +107,12 @@ collection logic are ported from TrafficMonitor © zhongyang219 (GPL-3.0).
   $options:zh-CN:
   - horizontal: 单排
   - vertical: 双排
-- TopRow: "↑: ${up}"
+- TopRow: "↑: ${network_up}"
   $name: Top-row format (two rows)
   $name:zh-CN: 上排格式（双排）
   $description: The top line in two-row mode, same syntax as the single-row format.
   $description:zh-CN: 双排时上面一行，语法同“单排格式”。
-- BottomRow: "↓: ${down}"
+- BottomRow: "↓: ${network_down}"
   $name: Bottom-row format (two rows)
   $name:zh-CN: 下排格式（双排）
   $description: The bottom line in two-row mode, same syntax as the single-row format.

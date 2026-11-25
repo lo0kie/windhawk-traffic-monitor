@@ -49,15 +49,15 @@ static bool NameEquals(const std::wstring& name, const wchar_t* expected) {
 
 static bool ResolvePlaceholder(const std::wstring& name, const Snapshot& data, const Settings& s,
                                std::wstring* out) {
-    if (NameEquals(name, L"up")) {
+    if (NameEquals(name, L"network_up")) {
         *out = FormatSpeedText(data.outSpeed, s);
-    } else if (NameEquals(name, L"down")) {
+    } else if (NameEquals(name, L"network_down")) {
         *out = FormatSpeedText(data.inSpeed, s);
-    } else if (NameEquals(name, L"total")) {
+    } else if (NameEquals(name, L"network_total")) {
         *out = FormatSpeedText(data.inSpeed + data.outSpeed, s);
-    } else if (NameEquals(name, L"cpu")) {
+    } else if (NameEquals(name, L"cpu_usage")) {
         *out = UsageToString(data.cpu, s);
-    } else if (NameEquals(name, L"mem")) {
+    } else if (NameEquals(name, L"memory_usage")) {
         if (s.memDisplay == 1) {
             *out = DataSizeWithUnit(data.memUsedKB * 1024, s);
         } else if (s.memDisplay == 2) {
@@ -65,13 +65,13 @@ static bool ResolvePlaceholder(const std::wstring& name, const Snapshot& data, c
         } else {
             *out = UsageToString(data.memPercent, s);
         }
-    } else if (NameEquals(name, L"memused")) {
+    } else if (NameEquals(name, L"memory_used")) {
         *out = DataSizeWithUnit(data.memUsedKB * 1024, s);
-    } else if (NameEquals(name, L"memtotal")) {
+    } else if (NameEquals(name, L"memory_total")) {
         *out = DataSizeWithUnit(data.memTotalKB * 1024, s);
-    } else if (NameEquals(name, L"gpu")) {
+    } else if (NameEquals(name, L"gpu_usage")) {
         *out = UsageToString(data.gpu, s);
-    } else if (NameEquals(name, L"disk")) {
+    } else if (NameEquals(name, L"disk_usage")) {
         *out = UsageToString(data.disk, s);
     } else {
         return false;

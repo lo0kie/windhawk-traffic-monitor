@@ -28,7 +28,7 @@
 - [x] 删除 `@architecture`（工具 mod 不设）
 - [x] `@license GPL-3.0`（因移植了 GPL-3.0 的 TrafficMonitor）
 - [x] `@github` / `@author` = `lo0kie`
-- [x] `@version` = `1.0.0`（与 git tag `v1.0.0` 一致，CI 会校验）
+- [x] `@version` = `1.0.1`（与 git tag `v1.0.1` 一致，CI 会校验）
 - [x] GPL-3.0 全文：`LICENSE` 文件 + 内嵌进 `dist/windhawk-traffic-monitor.wh.cpp` 注释
 - [x] 去掉了压缩/混淆（上架要求源码可读、可审查）
 - [x] 去掉了 `#ifdef TM_PREVIEW` 调试代码（`build.py pack` 的 `drop_preview`，产物 0 残留）
