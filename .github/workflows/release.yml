@@ -1,0 +1,86 @@
+name: build-and-release
+
+# 触发规则：
+#   - push 到 main  : 只构建（合并 + 校验 + 上传 artifact），不发 release
+#   - push tag v*.*.*: 构建 + 校验 tag 版本与 @version 一致 + 发 release
+#
+# 版本号唯一来源是 src/mod_meta.inc 的 @version（格式 x.x.x）。
+# 打 tag 时 tag 名必须是 v<@version>，例如 @version 1.0.0 对应 tag v1.0.0，
+# 不一致会让 CI 直接失败，避免发布的版本号和代码里的版本号对不上。
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*.*.*"]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Read and validate mod version
+        run: |
+          MOD_VER=$(grep -m1 '^// @version' src/mod_meta.inc | awk '{print $3}')
+          if [ -z "$MOD_VER" ]; then
+            echo "::error::src/mod_meta.inc 里找不到 // @version"
+            exit 1
+          fi
+          if ! echo "$MOD_VER" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "::error::@version 必须是 x.x.x 格式，当前是 '$MOD_VER'"
+            exit 1
+          fi
+          echo "MOD_VER=$MOD_VER" >> "$GITHUB_ENV"
+          echo "mod @version = $MOD_VER"
+
+      - name: Check tag matches mod version
+        if: github.ref_type == 'tag'
+        run: |
+          TAG_VER="${GITHUB_REF_NAME#v}"
+          if [ "$TAG_VER" != "$MOD_VER" ]; then
+            echo "::error::tag 版本 '$TAG_VER' 与 @version '$MOD_VER' 不一致（tag 应为 v$MOD_VER）"
+            exit 1
+          fi
+          echo "tag $GITHUB_REF_NAME 与 @version $MOD_VER 一致"
+
+      - name: Pack single-file mod
+        run: python scripts/build.py pack
+
+      - name: Verify output
+        run: |
+          ASSET=dist/windhawk-traffic-monitor.wh.cpp
+          test -s "$ASSET"
+          head -n 1 "$ASSET" | grep -q '^// ==WindhawkMod=='
+          grep -q "^// @version *$MOD_VER$" "$ASSET"
+          echo "产物校验通过：$(wc -l < "$ASSET") 行，@version $MOD_VER"
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windhawk-traffic-monitor-v${{ env.MOD_VER }}
+          path: dist/windhawk-traffic-monitor.wh.cpp
+          retention-days: 7
+
+      - name: Publish release
+        if: github.ref_type == 'tag'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # 兼容清理：旧版本曾用滚动 tag `latest` 发过 release，现已改为按版本 tag 发布。
+          gh release delete latest --yes --cleanup-tag || true
+          # 同 tag 重发时先删旧 release（保留 tag），保证可重入。
+          gh release delete "$GITHUB_REF_NAME" --yes || true
+
+          gh release create "$GITHUB_REF_NAME" dist/windhawk-traffic-monitor.wh.cpp \
+            --title "Windhawk Traffic Monitor v$MOD_VER" \
+            --notes "版本 $MOD_VER，单文件 .wh.cpp。" \
+            --verify-tag
