@@ -120,51 +120,52 @@ static void LoadSettings() {
     Settings s;
 
     static const wchar_t* const arranges[] = {L"horizontal", L"vertical"};
-    s.arrange = GetEnumSetting(L"Arrange", arranges, 2, 0);
+    // 设置按 mod_meta.inc 里的分组读取，路径格式为“分组.设置名”。
+    s.arrange = GetEnumSetting(L"content.Arrange", arranges, 2, 0);
 
     // 格式串保留原样（首尾空格是格式的一部分），只有整串为空时才用默认值
-    s.singleRow = GetRawStringSetting(L"SingleRow", s.singleRow);
-    s.topRow = GetRawStringSetting(L"TopRow", s.topRow);
-    s.bottomRow = GetRawStringSetting(L"BottomRow", s.bottomRow);
+    s.singleRow = GetRawStringSetting(L"content.SingleRow", s.singleRow);
+    s.topRow = GetRawStringSetting(L"content.TopRow", s.topRow);
+    s.bottomRow = GetRawStringSetting(L"content.BottomRow", s.bottomRow);
 
     static const wchar_t* const aligns[] = {L"left", L"center", L"right"};
-    s.align = GetEnumSetting(L"Align", aligns, 3, 0);
+    s.align = GetEnumSetting(L"layout.Align", aligns, 3, 0);
 
-    s.fontFace = GetStringSetting(L"FontFace", L"Microsoft YaHei UI");
-    s.fontSize = std::max(6, std::min(48, (int)GetIntSetting(L"FontSize", 14)));
+    s.fontFace = GetStringSetting(L"style.FontFace", L"Microsoft YaHei UI");
+    s.fontSize = std::max(6, std::min(48, (int)GetIntSetting(L"style.FontSize", 14)));
     static const wchar_t* const weights[] = {L"thin",   L"extralight", L"light",
                                              L"normal", L"medium",     L"semibold",
                                              L"bold",   L"extrabold",  L"black"};
     static const int weightValues[] = {100, 200, 300, 400, 500, 600, 700, 800, 900};
-    s.fontWeight = weightValues[GetEnumSetting(L"FontWeight", weights, 9, 3)];
+    s.fontWeight = weightValues[GetEnumSetting(L"style.FontWeight", weights, 9, 3)];
 
     static const wchar_t* const themes[] = {L"auto", L"dark", L"light"};
-    s.theme = GetEnumSetting(L"Theme", themes, 3, 0);
+    s.theme = GetEnumSetting(L"style.Theme", themes, 3, 0);
 
-    s.textColor = GetStringSetting(L"TextColor", L"");
-    s.backColor = GetStringSetting(L"BackColor", L"");
-    s.backOpacity = std::max(0, std::min(255, (int)GetIntSetting(L"BackOpacity", 200)));
+    s.textColor = GetStringSetting(L"style.TextColor", L"");
+    s.backColor = GetStringSetting(L"style.BackColor", L"");
+    s.backOpacity = std::max(0, std::min(255, (int)GetIntSetting(L"style.BackOpacity", 200)));
 
     static const wchar_t* const units[] = {L"auto", L"kb", L"mb", L"auto-bits", L"kb-bits",
                                            L"mb-bits"};
-    s.speedUnit = GetEnumSetting(L"SpeedUnit", units, 6, 0);
+    s.speedUnit = GetEnumSetting(L"units.SpeedUnit", units, 6, 0);
     s.useBits = s.speedUnit >= 3;
-    s.hideUnit = GetIntSetting(L"HideUnit", 0) != 0;
-    s.separateUnit = GetIntSetting(L"SeparateUnit", 1) != 0;
+    s.hideUnit = GetIntSetting(L"units.HideUnit", 0) != 0;
+    s.separateUnit = GetIntSetting(L"units.SeparateUnit", 1) != 0;
 
     static const wchar_t* const positions[] = {L"auto", L"right", L"left", L"far-left"};
-    s.position = GetEnumSetting(L"Position", positions, 4, 0);
+    s.position = GetEnumSetting(L"layout.Position", positions, 4, 0);
 
-    s.offsetX = (int)GetIntSetting(L"OffsetX", 0);
-    s.offsetY = (int)GetIntSetting(L"OffsetY", 0);
-    s.rowGap = std::max(-200, std::min(200, (int)GetIntSetting(L"RowGap", 0)));
-    s.updateInterval = std::max(200, std::min(10000, (int)GetIntSetting(L"UpdateInterval", 1000)));
-    s.showTooltip = GetIntSetting(L"ShowTooltip", 1) != 0;
+    s.offsetX = (int)GetIntSetting(L"layout.OffsetX", 0);
+    s.offsetY = (int)GetIntSetting(L"layout.OffsetY", 0);
+    s.rowGap = std::max(-200, std::min(200, (int)GetIntSetting(L"layout.RowGap", 0)));
+    s.updateInterval = std::max(200, std::min(10000, (int)GetIntSetting(L"behavior.UpdateInterval", 1000)));
+    s.showTooltip = GetIntSetting(L"behavior.ShowTooltip", 1) != 0;
 
     static const wchar_t* const actions[] = {L"none", L"taskmgr", L"show-desktop"};
-    s.singleClick = GetEnumSetting(L"SingleClick", actions, 3, 0);
-    s.middleClick = GetEnumSetting(L"MiddleClick", actions, 3, 0);
-    s.rightClick = GetEnumSetting(L"RightClick", actions, 3, 0);
+    s.singleClick = GetEnumSetting(L"behavior.SingleClick", actions, 3, 0);
+    s.middleClick = GetEnumSetting(L"behavior.MiddleClick", actions, 3, 0);
+    s.rightClick = GetEnumSetting(L"behavior.RightClick", actions, 3, 0);
 
 #ifdef TM_PREVIEW
     {

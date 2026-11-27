@@ -91,7 +91,9 @@ void TaskbarWidget::Destroy() {
     m_disk.Uninit();
     m_net.Reset();
     if (m_tooltip) {
-        DestroyWindow(m_tooltip);
+        if (IsWindow(m_tooltip)) {
+            DestroyWindow(m_tooltip);
+        }
         m_tooltip = nullptr;
     }
     if (m_hwnd) {

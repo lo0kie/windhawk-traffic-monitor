@@ -93,11 +93,22 @@ LRESULT TaskbarWidget::HandleMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM 
             }
             return 0;
         case WM_DESTROY:
+            // explorer 重启会连带销毁挂在任务栏上的窗口。此时不要结束窗口线程，
+            // 而是让 ThreadMain 等新任务栏出现后重建控件；真正退出由 WM_CLOSE 负责。
             KillTimer(hwnd, TM_TIMER_ID);
             m_hwnd = nullptr;
-            PostQuitMessage(0);
+            m_tooltip = nullptr;  // tooltip 以本窗口为 owner，会一起销毁
+            if (WaitForSingleObject(g_stopEvent, 0) != WAIT_OBJECT_0) {
+                LOG(L"WM_DESTROY -> post recreate");
+                PostThreadMessageW(GetCurrentThreadId(), WM_TM_RECREATE, 0, 0);
+            } else {
+                LOG(L"WM_DESTROY while stopping");
+            }
             return 0;
         case WM_CLOSE:
+            if (WaitForSingleObject(g_stopEvent, 0) == WAIT_OBJECT_0) {
+                PostQuitMessage(0);
+            }
             DestroyWindow(hwnd);
             return 0;
         case WM_TM_RELOAD: {

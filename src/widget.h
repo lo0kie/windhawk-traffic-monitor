@@ -9,6 +9,8 @@
 #include "textrender.h"
 
 #define WM_TM_RELOAD (WM_APP + 1)
+// 任务栏被销毁（explorer 重启）时由窗口过程投递，通知窗口线程重建控件
+#define WM_TM_RECREATE (WM_APP + 2)
 
 #define TM_WINDOW_CLASS L"WindhawkTrafficMonitor"
 #define TM_TIMER_ID 1
@@ -32,6 +34,7 @@ class TaskbarWidget {
 
     void RequestClose();
     HWND hwnd() const { return m_hwnd; }
+    HWND taskbar() const { return m_taskbar; }
 
     static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 

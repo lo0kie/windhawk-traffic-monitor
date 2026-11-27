@@ -130,6 +130,13 @@ void TaskbarWidget::OnTick() {
         return;
     }
 
+    // 非子窗口模式下（SetParent 失败时的 topmost 兜底），任务栏被销毁不会
+    // 自动带走本窗口；发现旧任务栏句柄失效就主动走重建流程。
+    if (!IsWindow(m_taskbar)) {
+        PostThreadMessageW(GetCurrentThreadId(), WM_TM_RECREATE, 0, 0);
+        return;
+    }
+
     SampleData();
 
     // 内容没变就跳过重绘：空闲时网速、CPU、内存、GPU、磁盘常常连续多帧相同，
